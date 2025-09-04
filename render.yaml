@@ -5,7 +5,7 @@ services:
     env: python
     buildCommand: pip install -r backend/requirements.txt
     startCommand: cd backend && python -c 'from models import init_db; init_db()' && uvicorn main:app --host 0.0.0.0 --port $PORT
-    port: 8000
+    PORT: 8000
     disk:
       name: bom-platform-disk
       mountPath: /var/data
