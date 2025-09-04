@@ -24,12 +24,13 @@ services:
       - key: PYTHON_VERSION
         value: 3.10.12
 
+static_sites:
   # The frontend static site
-  - type: static
-    name: bom-platform-frontend
+  - name: bom-platform-frontend
     env: node
     buildCommand: "cd frontend && npm install && npm run build"
     publishPath: "frontend/build"
+
 databases:
   - name: bom-platform-db
     plan: free
