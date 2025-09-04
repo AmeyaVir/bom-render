@@ -1,3 +1,6 @@
+# Render Blueprint for BOM Platform
+# This file describes the services that make up your application.
+
 services:
   # The backend web service
   - type: web
