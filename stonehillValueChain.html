@@ -1,0 +1,2363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stone Hill Minerals - Spud Prediction Project</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #004a99;
+            --secondary-color: #007bff;
+            --accent-color: #0056b3;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --light-bg: #f8f9fa;
+            --dark-text: #2c3e50;
+            --border-color: #e9ecef;
+            --sidebar-width: 280px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            color: var(--dark-text);
+            background-color: #ffffff;
+            overflow-x: hidden;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: var(--sidebar-width);
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+            z-index: 1000;
+            transform: translateX(0);
+            transition: transform 0.3s ease-in-out;
+            overflow-y: auto;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar.collapsed {
+            transform: translateX(-100%);
+        }
+
+        .sidebar-header {
+            padding: 1.5rem 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar-header h4 {
+            color: white;
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin: 0;
+        }
+
+        .nav-menu {
+            padding: 1rem 0;
+        }
+
+        .nav-item {
+            margin: 0.25rem 0;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+            font-size: 0.9rem;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-left-color: white;
+            transform: translateX(5px);
+        }
+
+        .nav-link i {
+            width: 20px;
+            margin-right: 0.75rem;
+            font-size: 1rem;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            transition: margin-left 0.3s ease-in-out;
+            min-height: 100vh;
+        }
+
+        .main-content.expanded {
+            margin-left: 0;
+        }
+
+        .top-header {
+            background: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .sidebar-toggle {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            color: var(--primary-color);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-toggle:hover {
+            background: var(--light-bg);
+        }
+
+        .content-wrapper {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Page Sections */
+        .page-section {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .page-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Card Styles */
+        .modern-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid var(--border-color);
+            margin-bottom: 2rem;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .modern-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+        }
+
+        .card-header-custom {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+            color: white;
+            padding: 1.5rem 2rem;
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+
+        .card-body-custom {
+            padding: 2rem;
+        }
+
+        /* Typography */
+        .page-title {
+            color: var(--primary-color);
+            font-weight: 700;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .page-subtitle {
+            color: #6c757d;
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            font-weight: 400;
+        }
+
+        /* Tables */
+        .modern-table {
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-color);
+        }
+
+        .modern-table th {
+            background: linear-gradient(135deg, var(--light-bg) 0%, #e9ecef 100%);
+            color: var(--dark-text);
+            font-weight: 600;
+            padding: 1rem;
+            border: none;
+            font-size: 0.9rem;
+        }
+
+        .modern-table td {
+            padding: 1rem;
+            border-top: 1px solid var(--border-color);
+            vertical-align: top;
+        }
+
+        /* Gantt Chart Styles */
+        .gantt-container {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            overflow-x: auto;
+        }
+
+        .gantt-chart {
+            min-width: 1000px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .gantt-header {
+            display: grid;
+            grid-template-columns: 300px repeat(24, 1fr);
+            gap: 1px;
+            margin-bottom: 1px;
+            background: var(--light-bg);
+            border-radius: 8px 8px 0 0;
+        }
+
+        .gantt-header-cell {
+            padding: 0.75rem 0.5rem;
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.8rem;
+            color: var(--dark-text);
+            background: white;
+            border-right: 1px solid var(--border-color);
+        }
+
+        .gantt-row {
+            display: grid;
+            grid-template-columns: 300px repeat(24, 1fr);
+            gap: 1px;
+            margin-bottom: 1px;
+            min-height: 50px;
+            align-items: center;
+        }
+
+        .gantt-task-name {
+            padding: 0.75rem;
+            font-weight: 500;
+            background: white;
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+        }
+
+        .gantt-cell {
+            height: 50px;
+            background: #fafafa;
+            border-right: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .gantt-bar {
+            height: 24px;
+            border-radius: 12px;
+            margin: 13px 4px;
+            display: flex;
+            align-items: center;
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 500;
+            padding: 0 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .phase-data-collection { background: linear-gradient(135deg, #17a2b8, #138496); }
+        .phase-eda { background: linear-gradient(135deg, #28a745, #1e7e34); }
+        .phase-feature-engineering { background: linear-gradient(135deg, #ffc107, #e0a800); }
+        .phase-modeling { background: linear-gradient(135deg, #007bff, #0056b3); }
+        .phase-validation { background: linear-gradient(135deg, #6f42c1, #5a32a3); }
+        .phase-deployment { background: linear-gradient(135deg, #fd7e14, #e55a00); }
+        .phase-monitoring { background: linear-gradient(135deg, #dc3545, #b21f2d); }
+
+        /* Milestone marker */
+        .gantt-milestone {
+            width: 16px;
+            height: 16px;
+            background: var(--warning-color);
+            border: 2px solid white;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Progress Indicators */
+        .progress-indicator {
+            display: inline-flex;
+            align-items: center;
+            background: var(--light-bg);
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin: 0.25rem;
+        }
+
+        .progress-indicator.not-started { background: #f8f9fa; color: #6c757d; }
+        .progress-indicator.in-progress { background: #fff3cd; color: #856404; }
+        .progress-indicator.completed { background: #d4edda; color: #155724; }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .content-wrapper {
+                padding: 1rem;
+            }
+            
+            .page-title {
+                font-size: 2rem;
+            }
+            
+            .gantt-container {
+                padding: 1rem;
+            }
+        }
+
+        /* Special highlight boxes */
+        .highlight-box {
+            background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+            border-left: 4px solid var(--primary-color);
+            padding: 1.5rem;
+            border-radius: 0 12px 12px 0;
+            margin: 1.5rem 0;
+        }
+
+        .highlight-box h5 {
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+
+        /* Math formula styling */
+        .formula-container {
+            background: #f8f9fa;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+        }
+
+        /* Loading animation for dynamic content */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h4><i class="fas fa-chart-line"></i> SHM Spud Prediction</h4>
+        </div>
+        <div class="nav-menu">
+            <div class="nav-item">
+                <a href="#" class="nav-link active" data-section="overview">
+                    <i class="fas fa-home"></i> Project Overview
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="#" class="nav-link" data-section="business-value">
+                    <i class="fas fa-chart-pie"></i> Business Value Chain
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="#" class="nav-link" data-section="company-profile">
+                    <i class="fas fa-building"></i> Company Profile
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="#" class="nav-link" data-section="project-plan">
+                    <i class="fas fa-project-diagram"></i> Project Plan
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="#" class="nav-link" data-section="timeline">
+                    <i class="fas fa-calendar-alt"></i> Timeline & Gantt
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="#" class="nav-link" data-section="technical-approach">
+                    <i class="fas fa-cogs"></i> Technical Approach
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="#" class="nav-link" data-section="data-requirements">
+                    <i class="fas fa-database"></i> Data Requirements
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="#" class="nav-link" data-section="valuation-framework">
+                    <i class="fas fa-calculator"></i> Valuation Framework
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="#" class="nav-link" data-section="milestones">
+                    <i class="fas fa-flag-checkered"></i> Milestones
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="#" class="nav-link" data-section="glossary">
+                    <i class="fas fa-book"></i> Glossary
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content" id="mainContent">
+        <header class="top-header">
+            <button class="sidebar-toggle" id="sidebarToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div>
+                <span class="text-muted">October 9, 2025</span> |
+                <span class="text-primary fw-semibold">Stone Hill Minerals Holdings, LLC</span>
+            </div>
+        </header>
+
+        <div class="content-wrapper">
+            
+            <section id="overview" class="page-section active">
+                <h1 class="page-title">Spud Activity Prediction for Mineral Asset Valuation</h1>
+                <p class="page-subtitle">Advanced Machine Learning Framework for Strategic Decision-Making</p>
+
+                <div class="modern-card">
+                    <div class="card-header-custom">
+                        <i class="fas fa-bullseye me-2"></i> Executive Summary
+                    </div>
+                    <div class="card-body-custom">
+                        <div class="row">
+                            <div class="col-lg-8">
+                                <p class="lead">Stone Hill Minerals requires a quantitative model to predict <strong>spud events</strong> on its undeveloped acreage sections within the next <strong>6 to 18 months</strong>. This prediction must directly support a <strong>"Keep vs. Sell"</strong> strategic decision by assigning a probabilistic economic value to the undeveloped asset.</p>
+                                
+                                <h5 class="text-primary mt-4 mb-3">Primary Project Goal</h5>
+                                <p>To integrate Machine Learning predictions of operator drilling activity into a <strong>Real Options Valuation (ROV)</strong> framework to determine the optimal hold period or exit price for undeveloped mineral and royalty assets.</p>
+                            </div>
+                            <div class="col-lg-4">
+                                <div class="highlight-box">
+                                    <h5><i class="fas fa-clock"></i> Project Duration</h5>
+                                    <p class="mb-2"><strong>24 weeks</strong> (6 months)</p>
+                                    <h5><i class="fas fa-target"></i> Success Metric</h5>
+                                    <p class="mb-0">ROV-based valuation accuracy >85%</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="modern-card text-center">
+                            <div class="card-body-custom">
+                                <i class="fas fa-brain fa-3x text-primary mb-3"></i>
+                                <h5>ML Classification</h5>
+                                <p>Spud probability prediction using advanced feature engineering</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="modern-card text-center">
+                            <div class="card-body-custom">
+                                <i class="fas fa-chart-line fa-3x text-success mb-3"></i>
+                                <h5>Real Options Valuation</h5>
+                                <p>Financial modeling with flexibility premium calculation</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="modern-card text-center">
+                            <div class="card-body-custom">
+                                <i class="fas fa-decision-tree fa-3x text-warning mb-3"></i>
+                                <h5>Strategic Decision</h5>
+                                <p>Keep vs. Sell framework based on quantitative analysis</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="business-value" class="page-section">
+                <h1 class="page-title">Business Value Chain & Scoping Strategy</h1>
+                <p class="page-subtitle">Aligning ML and ROV outcomes with critical business decisions</p>
+
+                <div class="modern-card">
+                    <div class="card-header-custom">
+                        <i class="fas fa-link me-2"></i> Stone Hill Minerals Value Chain
+                    </div>
+                    <div class="card-body-custom">
+                        <p class="lead mb-4">The project directly enhances the valuation and monetization stages of SHM's core business model: acquiring and managing mineral and royalty interests.</p>
+                        
+                        <div class="row text-center">
+                            <div class="col-md-3">
+                                <i class="fas fa-handshake fa-3x text-info mb-3"></i>
+                                <h5>Acquisition</h5>
+                                <p class="small text-muted">Identify and buy assets. Driven by geology & market.</p>
+                            </div>
+                            <div class="col-md-3">
+                                <i class="fas fa-map-marker-alt fa-3x text-success mb-3"></i>
+                                <h5>Asset Management</h5>
+                                <p class="small text-muted">Manage 100k+ net acres. Mitigate lease expiration risk (T-T-E).</p>
+                            </div>
+                            <div class="col-md-3">
+                                <i class="fas fa-brain fa-3x text-primary mb-3"></i>
+                                <h5>Strategic Decision (Project Focus)</h5>
+                                <p class="small text-muted">Use quantitative analysis to determine **Optimal Hold vs. Sell Timing**.</p>
+                            </div>
+                            <div class="col-md-3">
+                                <i class="fas fa-money-bill-wave fa-3x text-danger mb-3"></i>
+                                <h5>Monetization</h5>
+                                <p class="small text-muted">Receive royalty income (Keep) or cash proceeds (Sell).</p>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="modern-card">
+                    <div class="card-header-custom">
+                        <i class="fas fa-question-circle me-2"></i> Critical Business Scoping Questions
+                    </div>
+                    <div class="card-body-custom">
+                        <p class="lead">These questions focus the project on maximizing Return on Investment (ROI) and minimizing strategic risk.</p>
+
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <h5 class="text-primary mt-3 mb-3"><i class="fas fa-chart-bar me-2"></i> ROI & Performance Questions</h5>
+                                <ul>
+                                    <li>**Monetization Impact:** How will the model's **Precision@K (Top 10%)** metric directly translate into realized value (e.g., dollars saved from avoiding a premature sell, or dollars gained from a timely spud)? Is the **85% decision accuracy** target financially measurable?</li>
+                                    <li>**Acquisition Thresholds:** How can the resulting ROV/EMV value be used to set the **Max Bid Price** for undeveloped acreage acquisitions, ensuring SHM only purchases assets where the $\text{V}_{\text{ROV}}$ provides a sufficient margin over the asking price?</li>
+                                    <li>**Resource Allocation:** If the model identifies a high-$p$ asset (high spud probability) but the operator is financially weak, should SHM commit resources to encouraging the spud, or is the prediction itself the final input for the **Keep vs. Sell** decision?</li>
+                                </ul>
+                            </div>
+                            <div class="col-lg-6">
+                                <h5 class="text-primary mt-3 mb-3"><i class="fas fa-balance-scale me-2"></i> Risk & Decision Logic Questions</h5>
+                                <ul>
+                                    <li>**Threshold Strategy:** What is the specific business-approved **risk tolerance** that defines the "Sell" zone? For example, does a low spud probability ($p < 30\%$) coupled with a short **T-T-E** ($< 6$ months) automatically mandate a "Sell" recommendation, even if the **EMV** is slightly above the market price?</li>
+                                    <li>**Explainability & Trust:** Since the ML model's output ($p$) feeds the financial model (ROV/DTA), how will the **Feature Importance** be presented to non-technical stakeholders (e.g., leadership, finance team) to ensure they **trust** the $p$ value and adopt the resulting **Keep vs. Sell** recommendation?</li>
+                                    <li>**Data Cost Justification:** Given the cost of high-value data (e.g., DrillingInfo/Enverus $$$), what is the calculated **marginal financial value** that each external data source provides to the final decision accuracy, and should any expensive, low-impact data source be descope'd?</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <section id="company-profile" class="page-section">
+                <h1 class="page-title">Stone Hill Minerals Holdings, LLC</h1>
+                <p class="page-subtitle">Company Profile & Strategic Context</p>
+
+                <div class="modern-card">
+                    <div class="card-header-custom">
+                        <i class="fas fa-building me-2"></i> Company Overview
+                    </div>
+                    <div class="card-body-custom">
+                        <div class="row">
+                            <div class="col-lg-8">
+                                <p class="lead">Stone Hill Minerals is a privately-owned company that buys oil and gas mineral and royalty interests in oil and gas basins across the US with a focus in the <strong>Appalachian, Permian and DJ basins</strong>.</p>
+                                
+                                <h5 class="text-primary mt-4 mb-3">Business Model</h5>
+                                <ul class="list-unstyled">
+                                    <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> Acquires mineral and royalty interests across multiple basins</li>
+                                    <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> Manages over 100,000 net acres in seven states</li>
+                                    <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> Completed thousands of mineral and royalty deals since founding</li>
+                                    <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> Interested in deals of any size, producing or non-producing</li>
+                                </ul>
+
+                                <h5 class="text-primary mt-4 mb-3">Strategic Focus Areas</h5>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h6 class="fw-semibold">Primary Basins:</h6>
+                                        <ul>
+                                            <li>Permian Basin (Texas/New Mexico)</li>
+                                            <li>Appalachian Basin (PA/WV/OH)</li>
+                                            <li>DJ Basin/Rockies (Colorado)</li>
+                                        </ul>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h6 class="fw-semibold">Asset Types:</h6>
+                                        <ul>
+                                            <li>Mineral Interests</li>
+                                            <li>Royalty Interests</li>
+                                            <li>Overriding Royalty Interests</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-4">
+                                <div class="highlight-box">
+                                    <h5><i class="fas fa-map-marker-alt"></i> Headquarters</h5>
+                                    <p>Fort Worth, Texas</p>
+                                    
+                                    <h5><i class="fas fa-users"></i> Team Size</h5>
+                                    <p>2-10 employees</p>
+                                    
+                                    <h5><i class="fas fa-industry"></i> Industry</h5>
+                                    <p>Oil and Gas - Mineral Rights</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modern-card">
+                    <div class="card-header-custom">
+                        <i class="fas fa-history me-2"></i> Recent Developments & Market Context
+                    </div>
+                    <div class="card-body-custom">
+                        <h5 class="text-primary mb-3">Industry Consolidation Trends</h5>
+                        <p>The mineral rights sector has seen significant consolidation activity, with companies like Kimbell Royalty Partners managing over 5.7 million gross acres across 20 states. Recent transactions in the Permian Basin show premium valuations for quality acreage positions.</p>
+
+                        <h5 class="text-primary mt-4 mb-3">Operational Excellence</h5>
+                        <p>Stone Hill's management team has a proven track record, having completed over 160 acquisitions since 1998. The company maintains strategic relationships with major operators including Pioneer Natural Resources (PXD) and other leading E&P companies in core operating areas.</p>
+
+                        <div class="row mt-4">
+                            <div class="col-md-6">
+                                <h6 class="fw-semibold text-success">Competitive Advantages:</h6>
+                                <ul>
+                                    <li>Deep basin-specific expertise</li>
+                                    <li>Established operator relationships</li>
+                                    <li>Diversified geographic portfolio</li>
+                                    <li>Flexible deal structuring capability</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="fw-semibold text-warning">Strategic Challenges:</h6>
+                                <ul>
+                                    <li>Timing uncertainty for drilling decisions</li>
+                                    <li>Commodity price volatility exposure</li>
+                                    <li>Lease expiration risk management</li>
+                                    <li>Optimal hold vs. sell timing</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="project-plan" class="page-section">
+                <h1 class="page-title">Project Implementation Plan</h1>
+                <p class="page-subtitle">Comprehensive roadmap for spud prediction and valuation modeling</p>
+
+                <div class="modern-card">
+                    <div class="card-header-custom">
+                        <i class="fas fa-tasks me-2"></i> Project Phases Overview
+                    </div>
+                    <div class="card-body-custom">
+                        <div class="table-responsive">
+                            <table class="table modern-table">
+                                <thead>
+                                    <tr>
+                                        <th>Phase</th>
+                                        <th>Duration</th>
+                                        <th>Key Activities</th>
+                                        <th>Deliverables</th>
+                                        <th>Resources</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong class="text-info">Phase 1: Data Discovery</strong></td>
+                                        <td>4 weeks</td>
+                                        <td>Databricks schema exploration, data cataloging, quality assessment</td>
+                                        <td>Data inventory, quality report, access protocols</td>
+                                        <td>Data Engineer, Data Scientist</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong class="text-success">Phase 2: EDA & Feature Engineering</strong></td>
+                                        <td>3 weeks</td>
+                                        <td>Exploratory analysis, correlation studies, feature creation</td>
+                                        <td>EDA notebooks, feature documentation, data pipeline</td>
+                                        <td>Data Scientist, Domain Expert</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong class="text-warning">Phase 3: ML Development</strong></td>
+                                        <td>6 weeks</td>
+                                        <td>Model selection, training, hyperparameter tuning, validation</td>
+                                        <td>Trained models, performance reports, MLflow artifacts</td>
+                                        <td>ML Engineer, Data Scientist</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong class="text-primary">Phase 4: Valuation Integration</strong></td>
+                                        <td>4 weeks</td>
+                                        <td>ROV model development, sensitivity analysis, scenario testing</td>
+                                        <td>Valuation models, sensitivity reports, decision framework</td>
+                                        <td>Financial Modeler, Data Scientist</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong class="text-secondary">Phase 5: Validation & Testing</strong></td>
+                                        <td>3 weeks</td>
+                                        <td>Backtesting, stress testing, stakeholder review</td>
+                                        <td>Validation reports, test results, recommendations</td>
+                                        <td>Full Team</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong class="text-danger">Phase 6: Deployment</strong></td>
+                                        <td>4 weeks</td>
+                                        <td>Production deployment, monitoring setup, documentation</td>
+                                        <td>Production system, monitoring dashboard, user guides</td>
+                                        <td>DevOps, Data Engineer</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="modern-card">
+                            <div class="card-header-custom">
+                                <i class="fas fa-database me-2"></i> Databricks Architecture
+                            </div>
+                            <div class="card-body-custom">
+                                <h6 class="fw-semibold mb-3">Schema Organization:</h6>
+                                <ul>
+                                    <li><code>shm_raw</code> - Raw data ingestion layer</li>
+                                    <li><code>shm_curated</code> - Cleaned and validated data</li>
+                                    <li><code>shm_features</code> - Engineered features</li>
+                                    <li><code>shm_models</code> - Model artifacts and predictions</li>
+                                    <li><code>shm_valuation</code> - Financial modeling outputs</li>
+                                </ul>
+
+                                <h6 class="fw-semibold mt-4 mb-3">Data Sources:</h6>
+                                <ul>
+                                    <li>DrillingInfo/Enverus API</li>
+                                    <li>Public operator reports (SEC filings)</li>
+                                    <li>Commodity price feeds</li>
+                                    <li>Stone Hill internal lease data</li>
+                                    <li>GIS/geological databases</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="modern-card">
+                            <div class="card-header-custom">
+                                <i class="fas fa-cog me-2"></i> Technical Implementation
+                            </div>
+                            <div class="card-body-custom">
+                                <h6 class="fw-semibold mb-3">ML Pipeline Components:</h6>
+                                <ul>
+                                    <li>Data preprocessing (PySpark)</li>
+                                    <li>Feature engineering (Databricks Feature Store)</li>
+                                    <li>Model training (MLflow + AutoML)</li>
+                                    <li>Model serving (Databricks Model Serving)</li>
+                                    <li>Monitoring (Databricks Lakehouse Monitoring)</li>
+                                </ul>
+
+                                <h6 class="fw-semibold mt-4 mb-3">Valuation Models:</h6>
+                                <ul>
+                                    <li>Binomial/Trinomial Lattice (Python)</li>
+                                    <li>Monte Carlo Simulation</li>
+                                    <li>Decision Tree Analysis</li>
+                                    <li>Sensitivity Analysis Framework</li>
+                                    <li>Interactive Dashboard (Streamlit/Plotly)</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="timeline" class="page-section">
+                <h1 class="page-title">Project Timeline & Gantt Chart</h1>
+                <p class="page-subtitle">24-week implementation schedule with key milestones</p>
+
+                <div class="gantt-container">
+                    <h5 class="mb-4"><i class="fas fa-calendar-alt me-2"></i> Interactive Project Gantt Chart</h5>
+                    
+                    <div class="gantt-chart">
+                        <div class="gantt-header">
+                            <div class="gantt-header-cell"><strong>Task / Phase</strong></div>
+                            <div class="gantt-header-cell">W1</div>
+                            <div class="gantt-header-cell">W2</div>
+                            <div class="gantt-header-cell">W3</div>
+                            <div class="gantt-header-cell">W4</div>
+                            <div class="gantt-header-cell">W5</div>
+                            <div class="gantt-header-cell">W6</div>
+                            <div class="gantt-header-cell">W7</div>
+                            <div class="gantt-header-cell">W8</div>
+                            <div class="gantt-header-cell">W9</div>
+                            <div class="gantt-header-cell">W10</div>
+                            <div class="gantt-header-cell">W11</div>
+                            <div class="gantt-header-cell">W12</div>
+                            <div class="gantt-header-cell">W13</div>
+                            <div class="gantt-header-cell">W14</div>
+                            <div class="gantt-header-cell">W15</div>
+                            <div class="gantt-header-cell">W16</div>
+                            <div class="gantt-header-cell">W17</div>
+                            <div class="gantt-header-cell">W18</div>
+                            <div class="gantt-header-cell">W19</div>
+                            <div class="gantt-header-cell">W20</div>
+                            <div class="gantt-header-cell">W21</div>
+                            <div class="gantt-header-cell">W22</div>
+                            <div class="gantt-header-cell">W23</div>
+                            <div class="gantt-header-cell">W24</div>
+                        </div>
+
+                        <div class="gantt-row">
+                            <div class="gantt-task-name">
+                                <i class="fas fa-database me-2 text-info"></i>
+                                <strong>Phase 1: Data Discovery & Access</strong>
+                            </div>
+                            <div class="gantt-cell"><div class="gantt-bar phase-data-collection">Setup</div></div>
+                            <div class="gantt-cell"><div class="gantt-bar phase-data-collection">Schema Discovery</div></div>
+                            <div class="gantt-cell"><div class="gantt-bar phase-data-collection">Data Cataloging</div></div>
+                            <div class="gantt-cell"><div class="gantt-bar phase-data-collection">Quality Assessment</div></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                        </div>
+
+                        <div class="gantt-row">
+                            <div class="gantt-task-name">
+                                <i class="fas fa-download me-2 text-info"></i>
+                                External Data Integration
+                            </div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"><div class="gantt-bar phase-data-collection">API Setup</div></div>
+                            <div class="gantt-cell"><div class="gantt-bar phase-data-collection">DrillingInfo</div></div>
+                            <div class="gantt-cell"><div class="gantt-bar phase-data-collection">Public Sources</div></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                        </div>
+
+                        <div class="gantt-row">
+                            <div class="gantt-task-name">
+                                <i class="fas fa-chart-bar me-2 text-success"></i>
+                                <strong>Phase 2: EDA & Feature Engineering</strong>
+                            </div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"><div class="gantt-bar phase-eda">EDA Analysis</div></div>
+                            <div class="gantt-cell"><div class="gantt-bar phase-eda">Correlation Studies</div></div>
+                            <div class="gantt-cell"><div class="gantt-bar phase-eda">Feature Engineering</div></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                        </div>
+
+                        <div class="gantt-row">
+                            <div class="gantt-task-name">
+                                <i class="fas fa-layer-group me-2 text-warning"></i>
+                                Feature Store & Pipeline Setup
+                            </div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"><div class="gantt-bar phase-feature-engineering">Feature Store</div></div>
+                            <div class="gantt-cell"><div class="gantt-bar phase-feature-engineering">Pipeline Automation</div></div>
+                            <div class="gantt-cell"><div class="gantt-bar phase-feature-engineering">Validation</div></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                        </div>
+
+                        <div class="gantt-row">
+                            <div class="gantt-task-name">
+                                <i class="fas fa-brain me-2 text-primary"></i>
+                                <strong>Phase 3: ML Model Development</strong>
+                            </div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"><div class="gantt-bar phase-modeling">Model Selection</div></div>
+                            <div class="gantt-cell"><div class="gantt-bar phase-modeling">Training</div></div>
+                            <div class="gantt-cell"><div class="gantt-bar phase-modeling">Hyperparameter Tuning</div></div>
+                            <div class="gantt-cell"><div class="gantt-bar phase-modeling">Validation</div></div>
+                            <div class="gantt-cell"><div class="gantt-bar phase-modeling">Model Comparison</div></div>
+                            <div class="gantt-cell"><div class="gantt-bar phase-modeling">Final Selection</div></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                        </div>
+
+                        <div class="gantt-row">
+                            <div class="gantt-task-name">
+                                <i class="fas fa-calculator me-2 text-secondary"></i>
+                                <strong>Phase 4: Valuation Integration</strong>
+                            </div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"><div class="gantt-bar phase-validation">ROV Development</div></div>
+                            <div class="gantt-cell"><div class="gantt-bar phase-validation">Decision Trees</div></div>
+                            <div class="gantt-cell"><div class="gantt-bar phase-validation">Sensitivity Analysis</div></div>
+                            <div class="gantt-cell"><div class="gantt-bar phase-validation">Integration Testing</div></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                        </div>
+
+                        <div class="gantt-row">
+                            <div class="gantt-task-name">
+                                <i class="fas fa-check-circle me-2 text-warning"></i>
+                                <strong>Phase 5: Validation & Testing</strong>
+                            </div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"><div class="gantt-bar phase-validation">Backtesting</div></div>
+                            <div class="gantt-cell"><div class="gantt-bar phase-validation">Stress Testing</div></div>
+                            <div class="gantt-cell"><div class="gantt-bar phase-validation">Stakeholder Review</div></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                        </div>
+
+                        <div class="gantt-row">
+                            <div class="gantt-task-name">
+                                <i class="fas fa-rocket me-2 text-danger"></i>
+                                <strong>Phase 6: Production Deployment</strong>
+                            </div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"><div class="gantt-bar phase-deployment">Deployment</div></div>
+                            <div class="gantt-cell"><div class="gantt-bar phase-deployment">Monitoring</div></div>
+                            <div class="gantt-cell"><div class="gantt-bar phase-deployment">Documentation</div></div>
+                        </div>
+
+                        <div class="gantt-row">
+                            <div class="gantt-task-name">
+                                <i class="fas fa-flag me-2 text-warning"></i>
+                                <strong>Key Milestones</strong>
+                            </div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"><div class="gantt-milestone" title="Data Architecture Complete"></div></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"><div class="gantt-milestone" title="Feature Engineering Complete"></div></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"><div class="gantt-milestone" title="ML Model Finalized"></div></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"><div class="gantt-milestone" title="Valuation Framework Complete"></div></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"><div class="gantt-milestone" title="Validation Complete"></div></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"></div>
+                            <div class="gantt-cell"><div class="gantt-milestone" title="Production Ready"></div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="modern-card">
+                            <div class="card-header-custom">
+                                <i class="fas fa-clock me-2"></i> Critical Path Analysis
+                            </div>
+                            <div class="card-body-custom">
+                                <h6 class="fw-semibold mb-3">Critical Dependencies:</h6>
+                                <ul>
+                                    <li><strong>Data Access:</strong> Databricks schema permissions (Week 1)</li>
+                                    <li><strong>External APIs:</strong> DrillingInfo/Enverus access (Week 2)</li>
+                                    <li><strong>Feature Engineering:</strong> Domain expertise validation (Week 6)</li>
+                                    <li><strong>Model Training:</strong> Sufficient historical data (Week 9)</li>
+                                    <li><strong>Valuation Integration:</strong> Financial model validation (Week 17)</li>
+                                </ul>
+
+                                <div class="mt-4">
+                                    <h6 class="fw-semibold">Risk Mitigation:</h6>
+                                    <ul class="small">
+                                        <li>2-week buffer built into critical phases</li>
+                                        <li>Alternative data sources identified</li>
+                                        <li>Parallel workstreams where possible</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="modern-card">
+                            <div class="card-header-custom">
+                                <i class="fas fa-users me-2"></i> Resource Allocation
+                            </div>
+                            <div class="card-body-custom">
+                                <h6 class="fw-semibold mb-3">Team Structure:</h6>
+                                <ul>
+                                    <li><strong>Data Scientist (Lead):</strong> Full-time, all phases</li>
+                                    <li><strong>Data Engineer:</strong> 50% time, Phases 1-2, 6</li>
+                                    <li><strong>ML Engineer:</strong> 75% time, Phases 3-4</li>
+                                    <li><strong>Financial Modeler:</strong> 60% time, Phase 4</li>
+                                    <li><strong>DevOps Engineer:</strong> 25% time, Phase 6</li>
+                                    <li><strong>Domain Expert:</strong> 25% time, consultation</li>
+                                </ul>
+
+                                <div class="mt-4">
+                                    <h6 class="fw-semibold">External Dependencies:</h6>
+                                    <ul class="small">
+                                        <li>Stone Hill subject matter experts</li>
+                                        <li>Databricks support team</li>
+                                        <li>Third-party data providers</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="technical-approach" class="page-section">
+                <h1 class="page-title">Technical Approach & Methodology</h1>
+                <p class="page-subtitle">Detailed technical framework for ML and valuation modeling</p>
+
+                <div class="modern-card">
+                    <div class="card-header-custom">
+                        <i class="fas fa-cogs me-2"></i> Machine Learning Architecture
+                    </div>
+                    <div class="card-body-custom">
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <h5 class="text-primary mb-3">Model Selection Strategy</h5>
+                                <div class="table-responsive">
+                                    <table class="table table-sm modern-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Algorithm</th>
+                                                <th>Use Case</th>
+                                                <th>Priority</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><strong>XGBoost</strong></td>
+                                                <td>Primary classifier for spud probability</td>
+                                                <td><span class="badge bg-success">High</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Random Forest</strong></td>
+                                                <td>Feature importance analysis</td>
+                                                <td><span class="badge bg-success">High</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>LightGBM</strong></td>
+                                                <td>Fast iteration and tuning</td>
+                                                <td><span class="badge bg-warning">Medium</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Neural Networks</strong></td>
+                                                <td>Complex non-linear patterns</td>
+                                                <td><span class="badge bg-warning">Medium</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Logistic Regression</strong></td>
+                                                <td>Baseline and interpretability</td>
+                                                <td><span class="badge bg-info">Low</span></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <h5 class="text-primary mb-3">Evaluation Framework</h5>
+                                <div class="highlight-box">
+                                    <h6><i class="fas fa-chart-line"></i> Primary Metrics:</h6>
+                                    <ul class="mb-3">
+                                        <li><strong>AUC-ROC:</strong> Overall discrimination ability</li>
+                                        <li><strong>Precision@K:</strong> Top percentile accuracy</li>
+                                        <li><strong>Calibration:</strong> Probability reliability</li>
+                                        <li><strong>Feature Importance:</strong> Model interpretability</li>
+                                    </ul>
+                                    
+                                    <h6><i class="fas fa-target"></i> Success Criteria:</h6>
+                                    <ul class="mb-0">
+                                        <li>AUC-ROC > 0.75 (Target: 0.80+)</li>
+                                        <li>Top 10% precision > 40%</li>
+                                        <li>Calibration error < 0.10</li>
+                                        <li>Stable performance across basins</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modern-card">
+                    <div class="card-header-custom">
+                        <i class="fas fa-layer-group me-2"></i> Feature Engineering Strategy
+                    </div>
+                    <div class="card-body-custom">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <h6 class="fw-semibold text-info">Temporal Features</h6>
+                                <ul class="small">
+                                    <li>Spud velocity (3M, 6M, 12M rolling)</li>
+                                    <li>Seasonal drilling patterns</li>
+                                    <li>Operator activity trends</li>
+                                    <li>Permit application momentum</li>
+                                    <li>Rig count moving averages</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-4">
+                                <h6 class="fw-semibold text-success">Spatial Features</h6>
+                                <ul class="small">
+                                    <li>Distance to existing wells</li>
+                                    <li>Well density (3-mile radius)</li>
+                                    <li>Proximity to infrastructure</li>
+                                    <li>Competitive pressure mapping</li>
+                                    <li>Geological similarity scores</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-4">
+                                <h6 class="fw-semibold text-warning">Economic Features</h6>
+                                <ul class="small">
+                                    <li>Commodity price momentum</li>
+                                    <li>Estimated drilling costs</li>
+                                    <li>Expected EUR values</li>
+                                    <li>Operator financial health</li>
+                                    <li>Market volatility indicators</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <h5 class="text-primary mb-3">Advanced Feature Engineering Techniques</h5>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6 class="fw-semibold">Interaction Features:</h6>
+                                    <ul>
+                                        <li>Operator × Basin interactions</li>
+                                        <li>Geological quality × Economic conditions</li>
+                                        <li>Time-to-expiration × Spud velocity</li>
+                                        <li>Commodity price × Expected EUR</li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6 class="fw-semibold">Derived Metrics:</h6>
+                                    <ul>
+                                        <li>Competitive drilling pressure index</li>
+                                        <li>Geological sweet spot proximity</li>
+                                        <li>Operator efficiency ranking</li>
+                                        <li>Economic attractiveness score</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modern-card">
+                    <div class="card-header-custom">
+                        <i class="fas fa-flask me-2"></i> Model Validation & Testing
+                    </div>
+                    <div class="card-body-custom">
+                        <h5 class="text-primary mb-3">Validation Strategy</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6 class="fw-semibold">Temporal Cross-Validation:</h6>
+                                <ul>
+                                    <li><strong>Training:</strong> 2018-2022 data</li>
+                                    <li><strong>Validation:</strong> 2023 data</li>
+                                    <li><strong>Test:</strong> 2024 data</li>
+                                    <li><strong>Walk-forward validation</strong> with 6-month windows</li>
+                                </ul>
+
+                                <h6 class="fw-semibold mt-4">Geographic Cross-Validation:</h6>
+                                <ul>
+                                    <li>Train on Permian, test on DJ Basin</li>
+                                    <li>Cross-basin performance evaluation</li>
+                                    <li>Operator-specific model performance</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="fw-semibold">Stress Testing:</h6>
+                                <ul>
+                                    <li><strong>Market Stress:</strong> 2020 oil price crash period</li>
+                                    <li><strong>Activity Stress:</strong> Low drilling periods</li>
+                                    <li><strong>Data Quality:</strong> Missing feature scenarios</li>
+                                    <li><strong>Operator Changes:</strong> M&A activity impact</li>
+                                </ul>
+
+                                <h6 class="fw-semibold mt-4">Backtesting Framework:</h6>
+                                <ul>
+                                    <li>12-month rolling predictions</li>
+                                    <li>Performance tracking over time</li>
+                                    <li>Model drift detection</li>
+                                    <li>Feature importance stability</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="data-requirements" class="page-section">
+                <h1 class="page-title">Data Requirements & Sources</h1>
+                <p class="page-subtitle">Comprehensive data architecture for spud prediction and valuation</p>
+
+                <div class="modern-card">
+                    <div class="card-header-custom">
+                        <i class="fas fa-database me-2"></i> Databricks Schema Architecture
+                    </div>
+                    <div class="card-body-custom">
+                        <div class="table-responsive">
+                            <table class="table modern-table">
+                                <thead>
+                                    <tr>
+                                        <th>Schema</th>
+                                        <th>Purpose</th>
+                                        <th>Key Tables</th>
+                                        <th>Update Frequency</th>
+                                        <th>Data Retention</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><code class="text-info">shm_raw</code></td>
+                                        <td>Raw data ingestion</td>
+                                        <td>wells, permits, production, leases</td>
+                                        <td>Daily</td>
+                                        <td>7 years</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code class="text-success">shm_curated</code></td>
+                                        <td>Clean, validated data</td>
+                                        <td>wells_clean, spud_events, operator_metrics</td>
+                                        <td>Daily</td>
+                                        <td>10 years</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code class="text-warning">shm_features</code></td>
+                                        <td>Engineered features</td>
+                                        <td>section_features, temporal_features, spatial_features</td>
+                                        <td>Weekly</td>
+                                        <td>5 years</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code class="text-primary">shm_models</code></td>
+                                        <td>ML artifacts & predictions</td>
+                                        <td>model_predictions, feature_importance, performance_metrics</td>
+                                        <td>On-demand</td>
+                                        <td>3 years</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code class="text-secondary">shm_valuation</code></td>
+                                        <td>Financial modeling</td>
+                                        <td>rov_calculations, decision_trees, portfolio_valuation</td>
+                                        <td>Monthly</td>
+                                        <td>10 years</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-8">
+                        <div class="modern-card">
+                            <div class="card-header-custom">
+                                <i class="fas fa-download me-2"></i> External Data Sources
+                            </div>
+                            <div class="card-body-custom">
+                                <div class="table-responsive">
+                                    <table class="table modern-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Data Source</th>
+                                                <th>Content</th>
+                                                <th>Access Method</th>
+                                                <th>Cost</th>
+                                                <th>Critical Features</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><strong>DrillingInfo/Enverus</strong></td>
+                                                <td>Well data, permits, production</td>
+                                                <td>REST API</td>
+                                                <td>$$$</td>
+                                                <td>Spud dates, operator info, well coordinates</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>SEC EDGAR</strong></td>
+                                                <td>Operator financial reports</td>
+                                                <td>Public API</td>
+                                                <td>Free</td>
+                                                <td>CapEx budgets, drilling guidance</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>EIA</strong></td>
+                                                <td>Commodity prices, rig counts</td>
+                                                <td>API</td>
+                                                <td>Free</td>
+                                                <td>Oil/gas prices, drilling activity</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Baker Hughes</strong></td>
+                                                <td>Rig count data</td>
+                                                <td>Web scraping</td>
+                                                <td>Free</td>
+                                                <td>Active rig counts by basin</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>USGS/State Agencies</strong></td>
+                                                <td>Geological data</td>
+                                                <td>FTP/Downloads</td>
+                                                <td>Free</td>
+                                                <td>Formation data, geological maps</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>CME/NYMEX</strong></td>
+                                                <td>Futures & options data</td>
+                                                <td>Market data feeds</td>
+                                                <td>$$</td>
+                                                <td>Volatility, forward curves</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="modern-card">
+                            <div class="card-header-custom">
+                                <i class="fas fa-shield-alt me-2"></i> Data Quality Framework
+                            </div>
+                            <div class="card-body-custom">
+                                <h6 class="fw-semibold mb-3">Quality Checks:</h6>
+                                <ul class="small">
+                                    <li><strong>Completeness:</strong> Missing value thresholds</li>
+                                    <li><strong>Consistency:</strong> Cross-source validation</li>
+                                    <li><strong>Accuracy:</strong> Range and format checks</li>
+                                    <li><strong>Timeliness:</strong> Data freshness monitoring</li>
+                                    <li><strong>Uniqueness:</strong> Duplicate detection</li>
+                                </ul>
+
+                                <h6 class="fw-semibold mt-4 mb-3">Monitoring & Alerts:</h6>
+                                <ul class="small">
+                                    <li>Daily data quality reports</li>
+                                    <li>API failure notifications</li>
+                                    <li>Schema drift detection</li>
+                                    <li>Volume anomaly alerts</li>
+                                </ul>
+
+                                <h6 class="fw-semibold mt-4 mb-3">Data Lineage:</h6>
+                                <ul class="small">
+                                    <li>Source system tracking</li>
+                                    <li>Transformation documentation</li>
+                                    <li>Feature derivation history</li>
+                                    <li>Model input attribution</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modern-card">
+                    <div class="card-header-custom">
+                        <i class="fas fa-chart-bar me-2"></i> Feature Categories & Data Sources
+                    </div>
+                    <div class="card-body-custom">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <h5 class="text-info mb-3">1. Operator Intent Features</h5>
+                                <div class="table-responsive">
+                                    <table class="table table-sm">
+                                        <thead>
+                                            <tr><th>Feature</th><th>Source</th><th>Granularity</th></tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr><td>Spud Velocity (3M/6M/12M)</td><td>DrillingInfo</td><td>Section</td></tr>
+                                            <tr><td>WIP Count</td><td>DrillingInfo</td><td>Section</td></tr>
+                                            <tr><td>Permit Count</td><td>State Agencies</td><td>Section</td></tr>
+                                            <tr><td>CapEx Budget</td><td>SEC Filings</td><td>Operator</td></tr>
+                                            <tr><td>Rig Count</td><td>Baker Hughes</td><td>Basin</td></tr>
+                                            <tr><td>Spud-to-Sales Time</td><td>DrillingInfo</td><td>Operator</td></tr>
+                                            <tr><td>Offset Activity</td><td>DrillingInfo</td><td>3-mile radius</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <h5 class="text-success mb-3">2. Geological/Production Features</h5>
+                                <div class="table-responsive">
+                                    <table class="table table-sm">
+                                        <thead>
+                                            <tr><th>Feature</th><th>Source</th><th>Granularity</th></tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr><td>Effective Porosity</td><td>Well Logs</td><td>Section</td></tr>
+                                            <tr><td>Net Pay Thickness</td><td>Well Logs</td><td>Section</td></tr>
+                                            <tr><td>Oil EUR/1000ft</td><td>Type Curves</td><td>Formation</td></tr>
+                                            <tr><td>Gas EUR/1000ft</td><td>Type Curves</td><td>Formation</td></tr>
+                                            <tr><td>Lateral Length</td><td>DrillingInfo</td><td>Well</td></tr>
+                                            <tr><td>Drill Cost/ft</td><td>Completion Reports</td><td>Basin</td></tr>
+                                            <tr><td>Infrastructure Distance</td><td>GIS Data</td><td>Section</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <h5 class="text-warning mb-3">3. Contractual/Financial Features</h5>
+                                <div class="table-responsive">
+                                    <table class="table table-sm">
+                                        <thead>
+                                            <tr><th>Feature</th><th>Source</th><th>Granularity</th></tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr><td>Time to Expiration</td><td>Lease Records</td><td>Section</td></tr>
+                                            <tr><td>Lease Status</td><td>Lease Records</td><td>Section</td></tr>
+                                            <tr><td>Development Clause</td><td>Lease Records</td><td>Section</td></tr>
+                                            <tr><td>Royalty Rate</td><td>Lease Records</td><td>Section</td></tr>
+                                            <tr><td>Oil Price</td><td>CME/EIA</td><td>Daily</td></tr>
+                                            <tr><td>Price Volatility</td><td>Options Market</td><td>Daily</td></tr>
+                                            <tr><td>Market Price/Acre</td><td>Comparable Sales</td><td>Basin</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="valuation-framework" class="page-section">
+                <h1 class="page-title">Valuation Framework</h1>
+                <p class="page-subtitle">Real Options Valuation and Decision Tree Analysis methodologies</p>
+
+                <div class="modern-card">
+                    <div class="card-header-custom">
+                        <i class="fas fa-calculator me-2"></i> Real Options Valuation (ROV) Framework
+                    </div>
+                    <div class="card-body-custom">
+                        <p class="lead">Since Stone Hill's asset is an <strong>undeveloped mineral right</strong> (an American-style option to drill, held by the operator), a static NPV/DCF is insufficient. The valuation must capture the <strong>flexibility value</strong> inherent in the asset.</p>
+
+                        <div class="row">
+                            <div class="col-lg-8">
+                                <h5 class="text-primary mb-3">Binomial/Trinomial Lattice Model</h5>
+                                <p>ROV calculates the full value of the undeveloped asset as:</p>
+                                <div class="formula-container">
+                                    <strong>Asset Value = Intrinsic Value + Time Value/Flexibility Premium</strong>
+                                </div>
+
+                                <div class="table-responsive mt-4">
+                                    <table class="table modern-table">
+                                        <thead>
+                                            <tr>
+                                                <th>ROV Input</th>
+                                                <th>ML/Data Source</th>
+                                                <th>Mathematical Representation</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><strong>Spud Probability (p)</strong></td>
+                                                <td>ML Classification Output</td>
+                                                <td>State transition probability</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Time to Expiration (T)</strong></td>
+                                                <td>Lease Contract Data</td>
+                                                <td>Option life parameter</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Volatility (σ)</strong></td>
+                                                <td>Commodity Markets</td>
+                                                <td>Price volatility input</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Exercise Price (K)</strong></td>
+                                                <td>Drilling Cost Estimates</td>
+                                                <td>Development cost threshold</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Underlying Value (S)</strong></td>
+                                                <td>Expected EUR × Prices</td>
+                                                <td>Asset intrinsic value</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="col-lg-4">
+                                <div class="highlight-box">
+                                    <h5><i class="fas fa-tree"></i> Decision Node Logic</h5>
+                                    <p class="small mb-3">At each time step, the operator chooses:</p>
+                                    <ul class="small">
+                                        <li><strong>Exercise:</strong> Drill the well</li>
+                                        <li><strong>Hold:</strong> Wait for better conditions</li>
+                                        <li><strong>Abandon:</strong> Let lease expire</li>
+                                    </ul>
+                                    
+                                    <h6 class="mt-4 mb-2">Key Advantages:</h6>
+                                    <ul class="small mb-0">
+                                        <li>Captures timing optionality</li>
+                                        <li>Incorporates uncertainty</li>
+                                        <li>Quantifies flexibility value</li>
+                                        <li>Supports sensitivity analysis</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modern-card">
+                    <div class="card-header-custom">
+                        <i class="fas fa-sitemap me-2"></i> Decision Tree Analysis (DTA)
+                    </div>
+                    <div class="card-body-custom">
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <h5 class="text-primary mb-3">Expected Monetary Value (EMV) Calculation</h5>
+                                <p>A simpler, more transparent method for direct strategic decision-making:</p>
+                                
+                                <div class="formula-container">
+                                    <strong>EMV<sub>Keep</sub> = (p × NPV<sub>Royalty</sub>) + ((1-p) × Value<sub>Lapsed Lease</sub>)</strong>
+                                </div>
+
+                                <h6 class="fw-semibold mt-4 mb-3">Decision Rules:</h6>
+                                <ul>
+                                    <li><strong>KEEP:</strong> If EMV<sub>Keep</sub> > Current Market Sell Price</li>
+                                    <li><strong>SELL:</strong> If EMV<sub>Keep</sub> < Current Market Sell Price</li>
+                                    <li><strong>HOLD:</strong> If difference is within uncertainty range</li>
+                                </ul>
+                            </div>
+                            <div class="col-lg-6">
+                                <h5 class="text-primary mb-3">Scenario Analysis Framework</h5>
+                                <div class="table-responsive">
+                                    <table class="table table-sm modern-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Scenario</th>
+                                                <th>Spud Prob.</th>
+                                                <th>Action</th>
+                                                <th>Rationale</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr class="table-success">
+                                                <td><strong>High Prob + Long T-T-E</strong></td>
+                                                <td>>60%</td>
+                                                <td>KEEP</td>
+                                                <td>High upside, low risk</td>
+                                            </tr>
+                                            <tr class="table-warning">
+                                                <td><strong>High Prob + Short T-T-E</strong></td>
+                                                <td>>60%</td>
+                                                <td>KEEP</td>
+                                                <td>Immediate cash flow</td>
+                                            </tr>
+                                            <tr class="table-info">
+                                                <td><strong>Low Prob + Long T-T-E</strong></td>
+                                                <td><30%</td>
+                                                <td>HOLD</td>
+                                                <td>Wait for better intel</td>
+                                            </tr>
+                                            <tr class="table-danger">
+                                                <td><strong>Low Prob + Short T-T-E</strong></td>
+                                                <td><30%</td>
+                                                <td>SELL</td>
+                                                <td>Avoid total loss</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modern-card">
+                    <div class="card-header-custom">
+                        <i class="fas fa-balance-scale me-2"></i> Integrated "Keep vs. Sell" Framework
+                    </div>
+                    <div class="card-body-custom">
+                        <h5 class="text-primary mb-3">Final Decision Logic</h5>
+                        <p>The ultimate decision rests on comparing the intrinsic and option values against the market value:</p>
+                        
+                        <div class="formula-container">
+                            <strong>Keep Decision ⟺ V<sub>ROV (Intrinsic + Option)</sub> > V<sub>Market (Comparable Sales)</sub></strong>
+                        </div>
+
+                        <div class="row mt-4">
+                            <div class="col-md-6">
+                                <h6 class="fw-semibold text-success">Factors Favoring "KEEP":</h6>
+                                <ul>
+                                    <li>High spud probability (>50%)</li>
+                                    <li>Strong geological quality</li>
+                                    <li>Active operator in area</li>
+                                    <li>Recent permit activity</li>
+                                    <li>High commodity prices</li>
+                                    <li>Low market valuations</li>
+                                    <li>Long time to expiration</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="fw-semibold text-danger">Factors Favoring "SELL":</h6>
+                                <ul>
+                                    <li>Low spud probability (<30%)</li>
+                                    <li>Marginal geological quality</li>
+                                    <li>Inactive operator</li>
+                                    <li>No recent drilling activity</li>
+                                    <li>Depressed commodity prices</li>
+                                    <li>High market valuations</li>
+                                    <li>Short time to expiration</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="highlight-box mt-4">
+                            <h5><i class="fas fa-lightbulb"></i> Strategic Insights</h5>
+                            <p class="mb-2">A high <strong>Spud Probability Score (p)</strong> combined with a short <strong>T-T-E</strong> should increase the V<sub>ROV</sub> sharply, pushing the asset toward the "Keep" category for immediate royalty income.</p>
+                            <p class="mb-0">Conversely, a low <strong>p</strong> with a short <strong>T-T-E</strong> signals high risk and an imminent loss of the asset, favoring a <strong>Sell</strong> before the lease lapses.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="milestones" class="page-section">
+                <h1 class="page-title">Project Milestones & Deliverables</h1>
+                <p class="page-subtitle">Key checkpoints and success criteria throughout the project lifecycle</p>
+
+                <div class="row">
+                    <div class="col-lg-8">
+                        <div class="modern-card">
+                            <div class="card-header-custom">
+                                <i class="fas fa-flag-checkered me-2"></i> Major Milestones Timeline
+                            </div>
+                            <div class="card-body-custom">
+                                <div class="timeline">
+                                    <div class="timeline-item mb-4">
+                                        <div class="d-flex align-items-center">
+                                            <div class="progress-indicator completed me-3">
+                                                <i class="fas fa-check"></i> Week 4
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-1"><strong>Data Architecture Complete</strong></h6>
+                                                <p class="mb-1 text-muted">Databricks schemas established, data quality framework implemented</p>
+                                                <small class="text-success">✓ Critical for all downstream work</small>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="timeline-item mb-4">
+                                        <div class="d-flex align-items-center">
+                                            <div class="progress-indicator in-progress me-3">
+                                                <i class="fas fa-spinner"></i> Week 7
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-1"><strong>Feature Engineering Complete</strong></h6>
+                                                <p class="mb-1 text-muted">Feature store populated, all feature categories validated</p>
+                                                <small class="text-warning">⏳ Foundation for ML modeling</small>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="timeline-item mb-4">
+                                        <div class="d-flex align-items-center">
+                                            <div class="progress-indicator not-started me-3">
+                                                <i class="fas fa-clock"></i> Week 14
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-1"><strong>ML Model Finalized</strong></h6>
+                                                <p class="mb-1 text-muted">Production-ready spud prediction model with >75% AUC-ROC</p>
+                                                <small class="text-info">🎯 Core prediction capability delivered</small>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="timeline-item mb-4">
+                                        <div class="d-flex align-items-center">
+                                            <div class="progress-indicator not-started me-3">
+                                                <i class="fas fa-clock"></i> Week 18
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-1"><strong>Valuation Framework Complete</strong></h6>
+                                                <p class="mb-1 text-muted">ROV and DTA models integrated with ML predictions</p>
+                                                <small class="text-info">💰 Financial decision framework ready</small>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="timeline-item mb-4">
+                                        <div class="d-flex align-items-center">
+                                            <div class="progress-indicator not-started me-3">
+                                                <i class="fas fa-clock"></i> Week 21
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-1"><strong>Validation Complete</strong></h6>
+                                                <p class="mb-1 text-muted">Backtesting results confirm model reliability and business value</p>
+                                                <small class="text-info">✅ Stakeholder sign-off achieved</small>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="timeline-item">
+                                        <div class="d-flex align-items-center">
+                                            <div class="progress-indicator not-started me-3">
+                                                <i class="fas fa-clock"></i> Week 24
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-1"><strong>Production Deployment</strong></h6>
+                                                <p class="mb-1 text-muted">Full system deployed with monitoring and user training complete</p>
+                                                <small class="text-info">🚀 Live system operational</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="modern-card">
+                            <div class="card-header-custom">
+                                <i class="fas fa-trophy me-2"></i> Success Criteria
+                            </div>
+                            <div class="card-body-custom">
+                                <h6 class="fw-semibold mb-3">Technical Metrics:</h6>
+                                <ul class="small">
+                                    <li><strong>Model Performance:</strong> AUC-ROC > 0.75</li>
+                                    <li><strong>Precision:</strong> Top 10% > 40%</li>
+                                    <li><strong>Calibration Error:</strong> < 0.10</li>
+                                    <li><strong>Feature Stability:</strong> < 10% drift monthly</li>
+                                    <li><strong>System Uptime:</strong> > 99.5%</li>
+                                </ul>
+
+                                <h6 class="fw-semibold mt-4 mb-3">Business Metrics:</h6>
+                                <ul class="small">
+                                    <li><strong>Decision Accuracy:</strong> > 85% correct Keep/Sell</li>
+                                    <li><strong>ROI:</strong> Project cost recovered within 12 months</li>
+                                    <li><strong>User Adoption:</strong> > 90% of decisions use system</li>
+                                    <li><strong>Process Efficiency:</strong> 70% reduction in analysis time</li>
+                                </ul>
+
+                                <h6 class="fw-semibold mt-4 mb-3">Risk Mitigation:</h6>
+                                <ul class="small">
+                                    <li>Model interpretability maintained</li>
+                                    <li>Fallback procedures documented</li>
+                                    <li>Data quality monitoring active</li>
+                                    <li>Regular model retraining scheduled</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="modern-card">
+                            <div class="card-header-custom">
+                                <i class="fas fa-file-alt me-2"></i> Key Deliverables
+                            </div>
+                            <div class="card-body-custom">
+                                <h6 class="fw-semibold mb-2">Phase 1 Deliverables:</h6>
+                                <ul class="small mb-3">
+                                    <li>Data inventory and quality assessment</li>
+                                    <li>Databricks workspace setup</li>
+                                    <li>API integration documentation</li>
+                                </ul>
+
+                                <h6 class="fw-semibold mb-2">Phase 2 Deliverables:</h6>
+                                <ul class="small mb-3">
+                                    <li>EDA notebooks and insights</li>
+                                    <li>Feature engineering pipeline</li>
+                                    <li>Feature store implementation</li>
+                                </ul>
+
+                                <h6 class="fw-semibold mb-2">Phase 3 Deliverables:</h6>
+                                <ul class="small mb-3">
+                                    <li>Trained ML models (MLflow)</li>
+                                    <li>Model performance reports</li>
+                                    <li>Feature importance analysis</li>
+                                </ul>
+
+                                <h6 class="fw-semibold mb-2">Final Deliverables:</h6>
+                                <ul class="small mb-0">
+                                    <li>Production ML pipeline</li>
+                                    <li>Valuation dashboard</li>
+                                    <li>User training materials</li>
+                                    <li>Technical documentation</li>
+                                    <li>Monitoring and alerting setup</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="glossary" class="page-section">
+                <h1 class="page-title">Glossary & Technical Reference</h1>
+                <p class="page-subtitle">Comprehensive definitions and contextual explanations</p>
+
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="modern-card">
+                            <div class="card-header-custom">
+                                <i class="fas fa-oil-well me-2"></i> Oil & Gas Terms
+                            </div>
+                            <div class="card-body-custom">
+                                <dl>
+                                    <dt>Spud</dt>
+                                    <dd class="small mb-3">The act of beginning to drill a well. Spud date marks the official start of drilling operations.</dd>
+                                    
+                                    <dt>EUR (Estimated Ultimate Recovery)</dt>
+                                    <dd class="small mb-3">The total amount of oil or gas expected to be produced from a well over its entire productive life.</dd>
+                                    
+                                    <dt>HBP (Held by Production)</dt>
+                                    <dd class="small mb-3">A lease status where production from existing wells maintains the lease beyond its primary term.</dd>
+                                    
+                                    <dt>Mineral Interest</dt>
+                                    <dd class="small mb-3">Ownership of the minerals beneath the surface, including the right to lease and receive royalty payments.</dd>
+                                    
+                                    <dt>Royalty Interest</dt>
+                                    <dd class="small mb-3">A percentage of production revenue paid to the mineral owner, free of drilling and operating costs.</dd>
+                                    
+                                    <dt>T-T-E (Time to Expiration)</dt>
+                                    <dd class="small mb-3">The remaining time before a lease expires, critical for drilling timing decisions.</dd>
+                                    
+                                    <dt>WIP (Well in Progress)</dt>
+                                    <dd class="small mb-3">A well that has been spudded but not yet completed and brought into production.</dd>
+                                    
+                                    <dt>Type Curve</dt>
+                                    <dd class="small mb-3">A representative production decline curve used to estimate future well performance.</dd>
+                                    
+                                    <dt>Lateral Length</dt>
+                                    <dd class="small mb-3">The horizontal length of a wellbore, typically measured in feet, affecting total production.</dd>
+                                    
+                                    <dt>Net Pay</dt>
+                                    <dd class="small mb-3">The thickness of rock formation that contains economically producible hydrocarbons.</dd>
+                                </dl>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="modern-card">
+                            <div class="card-header-custom">
+                                <i class="fas fa-chart-line me-2"></i> Financial & Valuation Terms
+                            </div>
+                            <div class="card-body-custom">
+                                <dl>
+                                    <dt>Real Options Valuation (ROV)</dt>
+                                    <dd class="small mb-3">A valuation method that captures the value of flexibility in timing investment decisions under uncertainty.</dd>
+                                    
+                                    <dt>Decision Tree Analysis (DTA)</dt>
+                                    <dd class="small mb-3">A decision-making tool that maps out alternatives and their probable outcomes in a tree-like format.</dd>
+                                    
+                                    <dt>Expected Monetary Value (EMV)</dt>
+                                    <dd class="small mb-3">The probability-weighted average of all possible outcomes in a decision scenario.</dd>
+                                    
+                                    <dt>Intrinsic Value</dt>
+                                    <dd class="small mb-3">The immediate exercise value of an option, calculated as the difference between asset value and exercise cost.</dd>
+                                    
+                                    <dt>Time Value</dt>
+                                    <dd class="small mb-3">The portion of an option's value attributable to the time remaining until expiration.</dd>
+                                    
+                                    <dt>Volatility (σ)</dt>
+                                    <dd class="small mb-3">A measure of price fluctuation, typically expressed as an annualized standard deviation.</dd>
+                                    
+                                    <dt>Exercise Price (K)</dt>
+                                    <dd class="small mb-3">The cost of development (drilling and completion) required to extract value from the asset.</dd>
+                                    
+                                    <dt>Binomial Lattice</dt>
+                                    <dd class="small mb-3">A numerical method for valuing options by modeling price movements as a series of up/down steps.</dd>
+                                    
+                                    <dt>Monte Carlo Simulation</dt>
+                                    <dd class="small mb-3">A computational method using random sampling to model complex systems with multiple uncertainties.</dd>
+                                    
+                                    <dt>Net Present Value (NPV)</dt>
+                                    <dd class="small mb-3">The present value of future cash flows minus the initial investment, discounted at an appropriate rate.</dd>
+                                </dl>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="modern-card">
+                            <div class="card-header-custom">
+                                <i class="fas fa-brain me-2"></i> Machine Learning Terms
+                            </div>
+                            <div class="card-body-custom">
+                                <dl>
+                                    <dt>AUC-ROC</dt>
+                                    <dd class="small mb-3">Area Under the Curve - Receiver Operating Characteristic. Measures a classifier's ability to distinguish between classes.</dd>
+                                    
+                                    <dt>Feature Engineering</dt>
+                                    <dd class="small mb-3">The process of creating new input variables from raw data to improve model performance.</dd>
+                                    
+                                    <dt>Hyperparameter Tuning</dt>
+                                    <dd class="small mb-3">The process of optimizing model parameters that control the learning process.</dd>
+                                    
+                                    <dt>Cross-Validation</dt>
+                                    <dd class="small mb-3">A technique for assessing model performance by partitioning data and testing on unseen subsets.</dd>
+                                    
+                                    <dt>Precision@K</dt>
+                                    <dd class="small mb-3">The percentage of correctly predicted positive cases among the top K predictions.</dd>
+                                    
+                                    <dt>Model Calibration</dt>
+                                    <dd class="small mb-3">The degree to which predicted probabilities match actual frequencies of positive outcomes.</dd>
+                                    
+                                    <dt>Feature Importance</dt>
+                                    <dd class="small mb-3">A measure of how much each input variable contributes to the model's predictions.</dd>
+                                    
+                                    <dt>Overfitting</dt>
+                                    <dd class="small mb-3">When a model learns training data too specifically and fails to generalize to new data.</dd>
+                                    
+                                    <dt>Ensemble Methods</dt>
+                                    <dd class="small mb-3">Techniques that combine multiple models to create a stronger predictor than any individual model.</dd>
+                                    
+                                    <dt>MLflow</dt>
+                                    <dd class="small mb-3">An open-source platform for managing the machine learning lifecycle, including experiments and models.</dd>
+                                </dl>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="modern-card">
+                            <div class="card-header-custom">
+                                <i class="fas fa-database me-2"></i> Technical & Data Terms
+                            </div>
+                            <div class="card-body-custom">
+                                <dl>
+                                    <dt>Databricks</dt>
+                                    <dd class="small mb-3">A unified analytics platform for big data processing and machine learning, built on Apache Spark.</dd>
+                                    
+                                    <dt>Feature Store</dt>
+                                    <dd class="small mb-3">A centralized repository for storing, managing, and serving machine learning features across teams.</dd>
+                                    
+                                    <dt>Delta Lake</dt>
+                                    <dd class="small mb-3">An open-source storage layer that brings ACID transactions to Apache Spark and big data workloads.</dd>
+                                    
+                                    <dt>ETL Pipeline</dt>
+                                    <dd class="small mb-3">Extract, Transform, Load - the process of moving and transforming data from sources to destinations.</dd>
+                                    
+                                    <dt>API (Application Programming Interface)</dt>
+                                    <dd class="small mb-3">A set of protocols and tools for building software applications and enabling system integration.</dd>
+                                    
+                                    <dt>Data Lineage</dt>
+                                    <dd class="small mb-3">The tracking of data from its origin through all transformations to its final destination.</dd>
+                                    
+                                    <dt>Schema Drift</dt>
+                                    <dd class="small mb-3">Changes in data structure over time that can break downstream processing and analytics.</dd>
+                                    
+                                    <dt>SCADA</dt>
+                                    <dd class="small mb-3">Supervisory Control and Data Acquisition - systems for monitoring and controlling industrial processes.</dd>
+                                    
+                                    <dt>GIS (Geographic Information System)</dt>
+                                    <dd class="small mb-3">Technology for analyzing and visualizing spatial and geographic data.</dd>
+                                    
+                                    <dt>REST API</dt>
+                                    <dd class="small mb-3">Representational State Transfer - an architectural style for web services enabling data exchange.</dd>
+                                </dl>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modern-card">
+                    <div class="card-header-custom">
+                        <i class="fas fa-map me-2"></i> Basin & Geographic Context
+                    </div>
+                    <div class="card-body-custom">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <h6 class="fw-semibold text-primary mb-3">Permian Basin</h6>
+                                <ul class="small">
+                                    <li><strong>Location:</strong> West Texas & Southeast New Mexico</li>
+                                    <li><strong>Key Formations:</strong> Wolfcamp, Bone Spring, Delaware</li>
+                                    <li><strong>Primary Operators:</strong> Pioneer (PXD), ConocoPhillips, Chevron</li>
+                                    <li><strong>Characteristics:</strong> High-volume horizontal drilling, strong infrastructure</li>
+                                    <li><strong>Stone Hill Focus:</strong> Midland Basin portion</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-4">
+                                <h6 class="fw-semibold text-success mb-3">Appalachian Basin</h6>
+                                <ul class="small">
+                                    <li><strong>Location:</strong> Pennsylvania, West Virginia, Ohio</li>
+                                    <li><strong>Key Formations:</strong> Marcellus, Utica, Upper Devonian</li>
+                                    <li><strong>Primary Operators:</strong> EQT, Chesapeake, Antero</li>
+                                    <li><strong>Characteristics:</strong> Natural gas focused, challenging topography</li>
+                                    <li><strong>Stone Hill Focus:</strong> Liquids-rich areas</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-4">
+                                <h6 class="fw-semibold text-warning mb-3">DJ Basin</h6>
+                                <ul class="small">
+                                    <li><strong>Location:</strong> Colorado & Southeast Wyoming</li>
+                                    <li><strong>Key Formations:</strong> Niobrara, Codell, J-Sand</li>
+                                    <li><strong>Primary Operators:</strong> Civitas, Extraction, PDC Energy</li>
+                                    <li><strong>Characteristics:</strong> Oil & gas mix, environmental sensitivity</li>
+                                    <li><strong>Stone Hill Focus:</strong> Weld County core areas</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Navigation functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            const navLinks = document.querySelectorAll('.nav-link');
+            const sections = document.querySelectorAll('.page-section');
+
+            // Sidebar toggle
+            sidebarToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('collapsed');
+                mainContent.classList.toggle('expanded');
+            });
+
+            // Navigation between sections
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Remove active class from all nav links and sections
+                    navLinks.forEach(nl => nl.classList.remove('active'));
+                    sections.forEach(section => section.classList.remove('active'));
+                    
+                    // Add active class to clicked link
+                    this.classList.add('active');
+                    
+                    // Show corresponding section
+                    const targetSection = document.getElementById(this.dataset.section);
+                    if (targetSection) {
+                        targetSection.classList.add('active');
+                    }
+                });
+            });
+
+            // Mobile: Close sidebar when clicking on a nav link
+            if (window.innerWidth <= 768) {
+                navLinks.forEach(link => {
+                    link.addEventListener('click', function() {
+                        sidebar.classList.add('collapsed');
+                        mainContent.classList.add('expanded');
+                    });
+                });
+            }
+
+            // Gantt chart interactivity
+            const ganttBars = document.querySelectorAll('.gantt-bar');
+            ganttBars.forEach(bar => {
+                bar.addEventListener('mouseenter', function() {
+                    this.style.transform = 'scale(1.05)';
+                    this.style.zIndex = '10';
+                });
+                
+                bar.addEventListener('mouseleave', function() {
+                    this.style.transform = 'scale(1)';
+                    this.style.zIndex = '1';
+                });
+            });
+
+            // Milestone hover effects
+            const milestones = document.querySelectorAll('.gantt-milestone');
+            milestones.forEach(milestone => {
+                milestone.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translate(-50%, -50%) scale(1.3)';
+                });
+                
+                milestone.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translate(-50%, -50%) scale(1)';
+                });
+            });
+
+            // Progress indicators animation
+            const progressIndicators = document.querySelectorAll('.progress-indicator');
+            const observerOptions = {
+                threshold: 0.5,
+                rootMargin: '0px 0px -100px 0px'
+            };
+
+            const observer = new IntersectionObserver(function(entries) {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.animationDelay = '0.2s';
+                        entry.target.style.animation = 'fadeIn 0.6s ease-in-out forwards';
+                    }
+                });
+            }, observerOptions);
+
+            progressIndicators.forEach(indicator => {
+                observer.observe(indicator);
+            });
+
+            // Smooth scrolling for internal navigation
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href').substring(1);
+                    const targetElement = document.getElementById(targetId);
+                    if (targetElement) {
+                        targetElement.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+
+            // Table sorting (basic implementation)
+            const tables = document.querySelectorAll('.modern-table');
+            tables.forEach(table => {
+                const headers = table.querySelectorAll('th');
+                headers.forEach((header, index) => {
+                    header.style.cursor = 'pointer';
+                    header.addEventListener('click', function() {
+                        // Add sorting icon feedback
+                        const icon = this.querySelector('i') || document.createElement('i');
+                        icon.className = 'fas fa-sort ms-1';
+                        if (!this.querySelector('i')) {
+                            this.appendChild(icon);
+                        }
+                    });
+                });
+            });
+
+            // Dynamic loading simulation
+            setTimeout(() => {
+                const loadingElements = document.querySelectorAll('.loading');
+                loadingElements.forEach(element => {
+                    element.style.display = 'none';
+                });
+            }, 2000);
+
+            // Add tooltip functionality for Gantt milestones
+            milestones.forEach(milestone => {
+                if (milestone.title) {
+                    milestone.addEventListener('mouseenter', function(e) {
+                        const tooltip = document.createElement('div');
+                        tooltip.className = 'gantt-tooltip';
+                        tooltip.textContent = this.title;
+                        tooltip.style.cssText = `
+                            position: absolute;
+                            background: #333;
+                            color: white;
+                            padding: 8px;
+                            border-radius: 4px;
+                            font-size: 12px;
+                            z-index: 1000;
+                            pointer-events: none;
+                            white-space: nowrap;
+                        `;
+                        document.body.appendChild(tooltip);
+                        
+                        const rect = this.getBoundingClientRect();
+                        tooltip.style.left = rect.left + 'px';
+                        tooltip.style.top = (rect.top - 40) + 'px';
+                    });
+                    
+                    milestone.addEventListener('mouseleave', function() {
+                        const tooltip = document.querySelector('.gantt-tooltip');
+                        if (tooltip) {
+                            tooltip.remove();
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+
+    <script>
+        window.MathJax = { 
+            tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']] },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+</body>
+</html>
